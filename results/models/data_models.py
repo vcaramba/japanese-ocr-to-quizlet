@@ -1,8 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Literal, Dict
-from enum import Enum
+import csv
+import io
 from datetime import datetime
+from enum import Enum
+from typing import List, Optional, Literal, Dict, Any
 from uuid import UUID, uuid4
+
+from pydantic import BaseModel, Field
 
 
 class TextOrientation(str, Enum):
@@ -18,6 +21,13 @@ class ValidationStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class ExtractionMethod(str, Enum):
+    """Defines whether to extract text from PDF document or from image"""
+    PDF_TEXT_LAYER = "pdf_text_layer"  # Direct text extraction from PDF
+    OCR_IMAGE = "ocr_image"  # OCR performed on image
+    OCR_PDF_CONVERTED = "ocr_pdf_converted"  # PDF converted to image then OCR
+
+
 class OCRResult(BaseModel):
     """Raw OCR output from a single engine"""
     engine: str
@@ -26,7 +36,7 @@ class OCRResult(BaseModel):
     orientation: TextOrientation
     bounding_boxes: Optional[List[Dict]] = None
     processing_time: float
-    metadata: Dict = {}
+    metadata: Dict[str, Any] = {}
 
 
 class OCRConsensus(BaseModel):
@@ -34,7 +44,7 @@ class OCRConsensus(BaseModel):
     selected_text: str
     selected_engine: str
     all_results: List[OCRResult]
-    consensus_score: float
+    consensus_score: float = Field(ge=0.0, le=1.0)
     orientation: TextOrientation
 
     # Validation fields
@@ -73,15 +83,15 @@ class JapaneseToken(BaseModel):
     base_form: str
     pos: str
     has_kanji: bool
-    confidence: float = 1.0
+    confidence: float = Field(ge=0.0, le=1.0, default=1.0)
 
 
 class Flashcard(BaseModel):
     """Individual flashcard with validation support"""
     id: str = Field(default_factory=lambda: str(uuid4()))
-    front: str
-    back_reading: str
-    back_translation: str
+    front: str  # Kanji/Kana
+    back_reading: str  # Hiragana reading
+    back_translation: str  # English
     context: Optional[str] = None
     frequency_rank: Optional[int] = None
     notes: Optional[str] = None
@@ -106,9 +116,14 @@ class PageExtraction(BaseModel):
     """Intermediate result per page"""
     page_number: int
     image_path: str
-    ocr_consensus: OCRConsensus
-    tokens: List[JapaneseToken]
-    sentences: List[str]
+    extraction_method: ExtractionMethod
+    # OCR results (only if OCR was used)
+    ocr_consensus: Optional[OCRConsensus] = None
+    # Extracted text (from PDF text layer or OCR)
+    raw_text: str
+
+    tokens: List[JapaneseToken] = []
+    sentences: List[str] = []
     orientation: TextOrientation
     validation_status: ValidationStatus = ValidationStatus.PENDING
 
@@ -120,8 +135,19 @@ class FlashcardSet(BaseModel):
     cards: List[Flashcard]
     source_files: List[str]
     created_at: datetime = Field(default_factory=datetime.now)
-    metadata: Dict = {}
+    metadata: Dict[str, Any] = {}
 
     def to_quizlet_csv(self) -> str:
         """Export as Quizlet-compatible CSV"""
-        pass
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Quizlet format: front, back (reading + translation)
+        for card in self.cards:
+            front = card.front
+            back = f"{card.back_reading}\n{card.back_translation}"
+            if card.context:
+                back += f"\n例: {card.context}"
+            writer.writerow([front, back])
+
+        return output.getvalue()
