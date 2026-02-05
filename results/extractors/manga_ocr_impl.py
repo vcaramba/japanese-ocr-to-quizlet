@@ -1,0 +1,1 @@
+# Specialized for Japanese

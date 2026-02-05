@@ -1,0 +1,2 @@
+class EasyOCR:
+    pass
