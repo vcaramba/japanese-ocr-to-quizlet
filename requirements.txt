@@ -8,6 +8,7 @@ pillow==11.0.0
 
 # PDF/Image Processing
 pdf2image==1.17.0
+pydf==6.7.0
 
 # OCR (lightweight)
 pytesseract==0.3.13

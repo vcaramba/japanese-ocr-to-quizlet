@@ -1,56 +1,54 @@
 # Main pipeline orchestrator
-from results.extractors.easyocr_impl import EasyOCR
-from results.extractors.ocr_selector import OCRSelector
-from results.extractors.tesseract_ocr import TesseractOCR
-from results.models.data_models import FlashcardSet, PageExtraction, ProcessingSession, Flashcard
-from results.transformers.japanese_tokenizers import JapaneseTokenizer
-from results.transformers.translator import Translator
+from pathlib import Path
+from typing import Optional
+
+from extractors.easyocr_impl import EasyOCR
+from extractors.tesseract_ocr import TesseractOCR
+from extractors.text_extractor import TextExtractor
+from models.data_models import FlashcardSet, ProcessingSession, Flashcard, SessionStatus, \
+    TextOrientation
+from transformers.japanese_tokenizers import JapaneseTokenizer
+from transformers.translator import Translator
 
 
 class FlashcardPipeline:
-    def __init__(self, config):
+    def __init__(self, orientation_hint: Optional[TextOrientation] = None):
+        self.orientation_hint = orientation_hint
+        self.text_extractor = TextExtractor()
         self.ocr_engines = [TesseractOCR(), EasyOCR(), ...]
-        self.selector = OCRSelector()
+
         self.tokenizer = JapaneseTokenizer("Fugashi")
         self.translator = Translator()
 
-    def process_document(self, pdf_path: str) -> FlashcardSet:
+    def process_document(self, file_path: str) -> ProcessingSession:
         """Main entry point"""
-        """TODO: handle case when input is a PDF, return detected text
-        from a PDF if text layer is present"""
-        pages = self.extract_images_from_pdf(pdf_path)
-        extractions = []
+        file_path = Path(file_path)
 
-        for page_num, image in enumerate(pages):
-            # 1. Extract with all OCR engines
-            ocr_results = [engine.extract(image) for engine in self.ocr_engines]
+        # Create session
+        session = ProcessingSession(
+            source_files=[str(file_path)],
+            status=SessionStatus.PROCESSING
+        )
 
-            # 2. Select best result
-            consensus = self.selector.select_best(ocr_results)
+        # Check file type
+        if file_path.suffix.lower() == '.pdf':
+            pages = self.text_extractor.process_pdf(file_path)
+        else:
+            # Single image
+            ocr_results = [
+                self.text_extractor.get_chars_from_image(str(file_path), self.orientation_hint)]
+            pages = []
 
-            # 3. Transform text
-            tokens = self.tokenizer.tokenize(consensus.selected_text)
+        session.page_extractions = pages
+        session.status = SessionStatus.VALIDATING
 
-            extractions.append(PageExtraction(
-                page_number=page_num,
-                ocr_consensus=consensus,
-                tokens=tokens
-            ))
-
-        # 4. Generate flashcards
-        cards = self.generate_flashcards(extractions)
-
-        # 5. Export
-        return FlashcardSet(cards=cards)
-
-    def extract_images_from_pdf(self, pdf_path):
-        pass
+        return session
 
     def generate_flashcards(
             self,
             session: ProcessingSession,
             include_context: bool = True,
-            deduplicate: bool = True
+            skip_duplicates: bool = True
     ) -> FlashcardSet:
         """
         Generate flashcards from processed session
@@ -58,7 +56,7 @@ class FlashcardPipeline:
         Args:
             session: ProcessingSession with extracted text
             include_context: Include example sentences
-            deduplicate: Remove duplicate cards
+            skip_duplicates: Remove duplicate cards
 
         Returns:
             FlashcardSet ready for export
@@ -91,7 +89,7 @@ class FlashcardPipeline:
 
         for token, translation in zip(flashcard_tokens, translations):
             # Skip duplicates if requested
-            if deduplicate and token.surface in seen_surfaces:
+            if skip_duplicates and token.surface in seen_surfaces:
                 continue
 
             seen_surfaces.add(token.surface)
@@ -114,6 +112,6 @@ class FlashcardPipeline:
         )
 
         session.flashcard_set = flashcard_set
-        session.status = "completed"
+        session.status = SessionStatus.COMPLETED
 
         return flashcard_set

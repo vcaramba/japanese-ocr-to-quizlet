@@ -53,6 +53,12 @@ class OCRConsensus(BaseModel):
     user_notes: Optional[str] = None
 
 
+class OCRSelectionStrategy(str, Enum):
+    CONFIDENCE_WEIGHTED = "confidence_weighted"
+    MAJORITY_VOTE = "majority_vote"
+    LEARNED = "learned"
+
+
 class TrainingExample(BaseModel):
     """Ground truth data for OCR improvement"""
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -102,12 +108,19 @@ class Flashcard(BaseModel):
     user_edited: bool = False
 
 
+class SessionStatus(str, Enum):
+    PROCESSING = "processing"
+    VALIDATING = "validating"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 class ProcessingSession(BaseModel):
     """Track processing pipeline state"""
     session_id: UUID = Field(default_factory=uuid4)
     source_files: List[str]
     created_at: datetime = Field(default_factory=datetime.now)
-    status: Literal["processing", "validating", "completed", "failed"] = "processing"
+    status: SessionStatus = SessionStatus.PROCESSING
     page_extractions: List['PageExtraction'] = []
     flashcard_set: Optional['FlashcardSet'] = None
 

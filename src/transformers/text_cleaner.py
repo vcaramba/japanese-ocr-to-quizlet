@@ -1,4 +1,4 @@
-from results.models.data_models import TextOrientation
+from models.data_models import TextOrientation
 
 
 class TextCleaner:
