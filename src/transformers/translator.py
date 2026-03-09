@@ -1,2 +1,3 @@
 class Translator:
-    pass
+    def translate_tokens(self, flashcard_tokens):
+        pass

@@ -2,7 +2,7 @@ import csv
 import io
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Literal, Dict, Any
+from typing import List, Optional, Dict, Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -43,7 +43,7 @@ class OCRConsensus(BaseModel):
     """Merged result from multiple OCR engines"""
     selected_text: str
     selected_engine: str
-    all_results: List[OCRResult]
+    best_result: OCRResult
     consensus_score: float = Field(ge=0.0, le=1.0)
     orientation: TextOrientation
 
@@ -125,19 +125,23 @@ class ProcessingSession(BaseModel):
     flashcard_set: Optional['FlashcardSet'] = None
 
 
-class PageExtraction(BaseModel):
-    """Intermediate result per page"""
+class RawPageExtraction(BaseModel):
+    """Initial raw text result per page"""
     page_number: int
     image_path: str
-    extraction_method: ExtractionMethod
     # OCR results (only if OCR was used)
     ocr_consensus: Optional[OCRConsensus] = None
+    extraction_method: ExtractionMethod
     # Extracted text (from PDF text layer or OCR)
     raw_text: str
+    # detected orientation
+    orientation: Optional[TextOrientation] = None
 
+
+class PageExtraction(RawPageExtraction):
+    """Intermediate result per page"""
     tokens: List[JapaneseToken] = []
     sentences: List[str] = []
-    orientation: TextOrientation
     validation_status: ValidationStatus = ValidationStatus.PENDING
 
 
@@ -164,3 +168,9 @@ class FlashcardSet(BaseModel):
             writer.writerow([front, back])
 
         return output.getvalue()
+
+
+class TextLanguage(str, Enum):
+    JAPANESE = ['ja', 'jpn', 'japanese']
+    ENGLISH = ['en', 'eng', 'english']
+    RUSSIAN = ['ru', 'rus', 'russian']

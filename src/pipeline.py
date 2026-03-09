@@ -2,8 +2,6 @@
 from pathlib import Path
 from typing import Optional
 
-from extractors.easyocr_impl import EasyOCR
-from extractors.tesseract_ocr import TesseractOCR
 from extractors.text_extractor import TextExtractor
 from models.data_models import FlashcardSet, ProcessingSession, Flashcard, SessionStatus, \
     TextOrientation
@@ -14,8 +12,8 @@ from transformers.translator import Translator
 class FlashcardPipeline:
     def __init__(self, orientation_hint: Optional[TextOrientation] = None):
         self.orientation_hint = orientation_hint
-        self.text_extractor = TextExtractor()
-        self.ocr_engines = [TesseractOCR(), EasyOCR(), ...]
+        self.text_extractor = TextExtractor(self.orientation_hint)
+        self.text_transformer = TextTransformer()
 
         self.tokenizer = JapaneseTokenizer("Fugashi")
         self.translator = Translator()
@@ -35,8 +33,7 @@ class FlashcardPipeline:
             pages = self.text_extractor.process_pdf(file_path)
         else:
             # Single image
-            ocr_results = [
-                self.text_extractor.get_chars_from_image(str(file_path), self.orientation_hint)]
+            ocr_results = self.text_extractor.get_text_from_image(str(file_path))
             pages = []
 
         session.page_extractions = pages

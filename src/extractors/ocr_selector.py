@@ -43,7 +43,6 @@ class OCRSelector:
         return {
             "tesseract": 1.0,
             "easyocr": 1.0,
-            "manga_ocr": 1.2,  # Slight preference for manga_ocr for Japanese
         }
 
     def select_best(
@@ -68,7 +67,7 @@ class OCRSelector:
             return OCRConsensus(
                 selected_text=results[0].text,
                 selected_engine=results[0].engine,
-                all_results=results,
+                best_result=results[0],
                 consensus_score=results[0].confidence,
                 orientation=results[0].orientation
             )
@@ -91,7 +90,7 @@ class OCRSelector:
         return OCRConsensus(
             selected_text=selected.text,
             selected_engine=selected.engine,
-            all_results=results,
+            best_result=results,
             consensus_score=consensus_score,
             orientation=orientation
         )
@@ -237,9 +236,9 @@ class OCRSelector:
         self.engine_weights[engine] = max(0.1, min(2.0, self.engine_weights[engine]))
 
         # Save weights
-        self._save_weights()
+        self.save_weights()
 
-    def _save_weights(self):
+    def save_weights(self):
         """Save engine weights to file"""
         if self.weights_path:
             Path(self.weights_path).parent.mkdir(parents=True, exist_ok=True)

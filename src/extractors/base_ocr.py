@@ -25,7 +25,7 @@ class BaseOCR(ABC):
         self.name = name
 
     @abstractmethod
-    def _extract_text(self, image: Image.Image) -> tuple[str, float]:
+    def extract_text(self, image: Image.Image) -> tuple[str, float]:
         """
         Internal method to extract text from image
         Must be implemented by subclasses
@@ -62,7 +62,7 @@ class BaseOCR(ABC):
         image = self.preprocess_image(image, orientation_hint)
 
         # Extract text
-        text, confidence = self._extract_text(image)
+        text, confidence = self.extract_text(image)
 
         # Detect orientation
         orientation = self.detect_orientation(text, orientation_hint)
