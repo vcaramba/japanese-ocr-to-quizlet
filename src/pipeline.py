@@ -5,6 +5,7 @@ from typing import Optional
 from extractors.text_extractor import TextExtractor
 from models.data_models import FlashcardSet, ProcessingSession, Flashcard, SessionStatus, \
     TextOrientation
+from src.transformers.text_transformer import TextTransformer
 from transformers.japanese_tokenizers import JapaneseTokenizer
 from transformers.translator import Translator
 
@@ -14,7 +15,6 @@ class FlashcardPipeline:
         self.orientation_hint = orientation_hint
         self.text_extractor = TextExtractor(self.orientation_hint)
         self.text_transformer = TextTransformer()
-
         self.tokenizer = JapaneseTokenizer("Fugashi")
         self.translator = Translator()
 
