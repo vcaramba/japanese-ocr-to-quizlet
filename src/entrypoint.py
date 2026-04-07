@@ -1,7 +1,9 @@
-from config.settings import settings
+from src.config.settings import settings
 from src.pipeline import FlashcardPipeline
 
-def main():
+#Testing OCR and pipeline end-to-end with a sample document locally
+
+def run_pipeline():
     # 1. Settings loaded from .env automatically
     print(f"Using {settings.default_translator} for translation")
     
@@ -16,7 +18,6 @@ def main():
     )
     
     # 4. Process document
-    # TODO: path of file uploaded via UI
     input_path = settings.input_dir / "book.pdf"
     session = pipeline.process_document(input_path)
     
@@ -25,4 +26,4 @@ def main():
     session.flashcard_set.to_quizlet_csv()
 
 if __name__ == "__main__":
-    main()
+    run_pipeline()

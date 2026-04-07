@@ -33,3 +33,6 @@ pandas==2.2.3
 # Utils
 tqdm==4.67.1
 requests==2.32.3
+
+#UI
+streamlit==1.56.0
