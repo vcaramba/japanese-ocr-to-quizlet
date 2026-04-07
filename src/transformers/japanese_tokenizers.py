@@ -65,8 +65,6 @@ class FugashiTokenizer(JapaneseTokenizer):
         self.tagger = Tagger()
 
 
-class SudachiPyTokenizer(JapaneseTokenizer):
-    def __init__(self):
-        super().__init__("SudachiPy")
+
 
 

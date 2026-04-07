@@ -9,7 +9,7 @@ from pathlib import Path
 import time
 from PIL import Image
 
-from ..models.data_models import OCRResult, TextOrientation
+from models.data_models import OCRResult, TextOrientation
 
 
 class BaseOCR(ABC):

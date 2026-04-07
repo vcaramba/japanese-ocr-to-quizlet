@@ -62,3 +62,16 @@ Manual Validation UI
 |
 v
 Quizlet CSV Export
+
+
+#Install necessary dependencies:
+- pip install -r requirements.txt
+- Windows installation: py -m pip install --only-binary :all: -r requirements.txt
+
+#Add your DeepL API key to .env:
+- DEEPL_API_KEY=your-key-here
+- Get free key at: https://www.deepl.com/pro-api
+
+#Launch the UI:
+- streamlit run src/ui/app.py
+- Windows: py -m streamlit run src/ui/app.py

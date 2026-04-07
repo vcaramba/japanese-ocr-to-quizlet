@@ -1,17 +1,19 @@
 # Main pipeline orchestrator
 from pathlib import Path
-from typing import Optional
+import os
+from typing import List, Optional
 
 from extractors.text_extractor import TextExtractor
 from models.data_models import FlashcardSet, ProcessingSession, Flashcard, SessionStatus, \
     TextOrientation
 from src.transformers.text_transformer import TextTransformer
-from transformers.japanese_tokenizers import JapaneseTokenizer
-from transformers.translator import Translator
+from src.transformers.japanese_tokenizers import JapaneseTokenizer
+from src.transformers.translator import Translator
 
 
 class FlashcardPipeline:
-    def __init__(self, orientation_hint: Optional[TextOrientation] = None):
+    def __init__(self, ocr_engines: Optional[List[str]] = None, orientation_hint: Optional[TextOrientation] = None):
+        self.ocr_engines = ocr_engines
         self.orientation_hint = orientation_hint
         self.text_extractor = TextExtractor(self.orientation_hint)
         self.text_transformer = TextTransformer()

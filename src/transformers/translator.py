@@ -3,6 +3,7 @@ from typing import Optional, List
 from src.models.data_models import JapaneseToken
 
 import deepl
+import os
 
 
 class Translator:

@@ -1,4 +1,5 @@
 from sympy import re
+import os
 
 from models.data_models import TextOrientation
 
