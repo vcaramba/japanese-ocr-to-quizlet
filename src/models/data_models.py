@@ -127,7 +127,7 @@ class ProcessingSession(BaseModel):
 
 class RawPageExtraction(BaseModel):
     """Initial raw text result per page"""
-    page_number: int
+    page_number: Optional[int] = None
     image_path: str
     # OCR results (only if OCR was used)
     ocr_consensus: Optional[OCRConsensus] = None

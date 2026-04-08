@@ -213,3 +213,4 @@ __marimo__/
 
 # idea folder
  .idea/*
+src/data/*

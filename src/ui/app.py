@@ -1,6 +1,7 @@
 # src/ui/app.py
 import streamlit as st
 from pathlib import Path
+import os
 
 st.set_page_config(
     page_title="Japanese Flashcard Generator",
@@ -42,3 +43,6 @@ with st.sidebar:
         if st.button("Clear Session"):
             st.session_state.session_id = None
             st.rerun()
+
+
+print("DEBUG DEEPL_API_KEY:", os.getenv("DEEPL_API_KEY"))

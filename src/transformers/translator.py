@@ -4,6 +4,8 @@ from src.models.data_models import JapaneseToken
 
 import deepl
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class Translator:

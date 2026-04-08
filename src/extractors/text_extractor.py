@@ -63,7 +63,7 @@ class TextExtractor:
 
         return pages
 
-    def get_text_from_image(self, image_path: str, page_number: int) -> RawPageExtraction:
+    def get_text_from_image(self, image_path: str) -> RawPageExtraction:
 
         """
                 Process image with OCR
@@ -92,8 +92,7 @@ class TextExtractor:
         print(f"  Selected: {consensus.selected_engine} "
               f"(consensus: {consensus.consensus_score:.2%})")
         # return ocr_results
-        return RawPageExtraction(
-            page_number=page_number,
+        return RawPageExtraction(                
             image_path=image_path,
             extraction_method=ExtractionMethod.OCR_IMAGE,
             ocr_consensus=consensus,

@@ -12,13 +12,13 @@ from src.transformers.translator import Translator
 
 
 class FlashcardPipeline:
-    def __init__(self, ocr_engines: Optional[List[str]] = None, orientation_hint: Optional[TextOrientation] = None):
+    def __init__(self, ocr_engines: Optional[List[str]] = None, orientation_hint: Optional[TextOrientation] = None, deepl_api_key: Optional[str] = None):
         self.ocr_engines = ocr_engines
         self.orientation_hint = orientation_hint
         self.text_extractor = TextExtractor(self.orientation_hint)
         self.text_transformer = TextTransformer()
         self.tokenizer = JapaneseTokenizer("Fugashi")
-        self.translator = Translator()
+        self.translator = Translator(deepl_api_key)
 
     def process_document(self, file_path: str) -> ProcessingSession:
         """Main entry point"""
