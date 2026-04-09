@@ -143,8 +143,7 @@ class BaseOCR(ABC):
 
         raise ValueError(f"Unknown text orientation: {value}")
 
-    def supports_language(self, language: str) -> bool:
-        "TODO: Implement language support checking"
+    def supports_language(self, language: str) -> bool:        
         """
         Check if engine supports a language
 

@@ -21,7 +21,7 @@ session = ProcessingSession.parse_file(session_path / "session.json")
 if not session.flashcard_set:
     with st.spinner("Generating flashcards from validated OCR..."):
         pipeline = FlashcardPipeline()
-        session.flashcard_set = pipeline.generate_flashcards_from_session(session)
+        session.flashcard_set = pipeline.generate_flashcards(session)
         (session_path / "session.json").write_text(session.json())
 
 flashcards = session.flashcard_set.cards

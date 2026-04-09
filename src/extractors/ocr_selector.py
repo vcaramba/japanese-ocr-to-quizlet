@@ -76,7 +76,7 @@ class OCRSelector:
             selected = self.confidence_weighted_selection(results)
         elif strategy == OCRSelectionStrategy.MAJORITY_VOTE:
             selected = self.majority_vote_selection(results)
-        elif strategy == OCRSelectionStrategy.MAJORITY_VOTE:
+        elif strategy == OCRSelectionStrategy.LEARNED:
             selected = self.learned_selection(results)
         else:
             raise ValueError(f"Unknown strategy: {strategy.value}")
@@ -90,7 +90,7 @@ class OCRSelector:
         return OCRConsensus(
             selected_text=selected.text,
             selected_engine=selected.engine,
-            best_result=results,
+            best_result=selected,
             consensus_score=consensus_score,
             orientation=orientation
         )
