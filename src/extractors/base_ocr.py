@@ -120,7 +120,8 @@ class BaseOCR(ABC):
             Detected orientation
         """
         if orientation_hint:
-            return orientation_hint
+            orientation = self.parse_text_orientation(orientation_hint)
+            return orientation
 
         # Simple heuristic: if text has newlines, likely vertical
         # More sophisticated detection can be added
@@ -129,8 +130,21 @@ class BaseOCR(ABC):
             return TextOrientation.VERTICAL
 
         return TextOrientation.HORIZONTAL
+    
+    def parse_text_orientation(self, value: str) -> TextOrientation:
+        normalized = value.strip().lower()
+
+        if "auto" in normalized or "detect" in normalized:
+            return TextOrientation.AUTO_DETECT
+        if "vertical" in normalized or "tategaki" in normalized:
+            return TextOrientation.VERTICAL
+        if "horizontal" in normalized or "yokogaki" in normalized:
+            return TextOrientation.HORIZONTAL
+
+        raise ValueError(f"Unknown text orientation: {value}")
 
     def supports_language(self, language: str) -> bool:
+        "TODO: Implement language support checking"
         """
         Check if engine supports a language
 

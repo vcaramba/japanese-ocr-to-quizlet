@@ -67,6 +67,8 @@ Quizlet CSV Export
 #Install necessary dependencies:
 - pip install -r requirements.txt
 - Windows installation: py -m pip install --only-binary :all: -r requirements.txt
+#Install Tesseract OCR:
+- https://tesseract-ocr.github.io/tessdoc/Installation.html
 
 #Add your DeepL API key to .env:
 - DEEPL_API_KEY=your-key-here
@@ -74,4 +76,4 @@ Quizlet CSV Export
 
 #Launch the UI:
 - streamlit run src/ui/app.py
-- Windows: py -m streamlit run src/ui/app.py
+- Windows: python -m streamlit run src/ui/app.py

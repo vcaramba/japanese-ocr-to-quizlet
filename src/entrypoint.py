@@ -12,7 +12,9 @@ def run_pipeline():
     
     # 3. Initialize pipeline with settings
     pipeline = FlashcardPipeline(
-        ocr_engines=settings.default_ocr_engines
+        ocr_engines=settings.default_ocr_engines,
+        use_gpu=settings.use_gpu,
+        deepl_api_key=settings.deepl_api_key
     )
     
     # 4. Process document

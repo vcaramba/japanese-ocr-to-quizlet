@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 class TextOrientation(str, Enum):
     HORIZONTAL = "horizontal"
     VERTICAL = "vertical"
-    MIXED = "mixed"
+    AUTO_DETECT = "auto_detect"
 
 
 class ValidationStatus(str, Enum):

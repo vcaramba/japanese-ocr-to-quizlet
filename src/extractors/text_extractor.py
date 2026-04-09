@@ -14,7 +14,7 @@ from validators.characters_validator import contains_japanese
 class TextExtractor:
     def __init__(self, text_orientation: TextOrientation):
         self.ocr_selector = OCRSelector()
-        self.ocr_engines = [TesseractOCR(), EasyOCRImpl(), ...]
+        self.ocr_engines = [TesseractOCR(), EasyOCRImpl()]
         self.orientation_hint = text_orientation
 
     def process_pdf(self, pdf_path: Path) -> List[RawPageExtraction]:
@@ -80,6 +80,7 @@ class TextExtractor:
             try:
                 result = engine.extract(image_path, self.orientation_hint)
                 ocr_results.append(result)
+                print(ocr_results)
                 print(f"  {engine.name}: {result.confidence:.2%} confidence")
             except Exception as e:
                 print(f"  {engine.name} failed: {e}")
