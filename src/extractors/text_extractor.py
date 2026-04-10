@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Any
+from typing import List, Any, Optional
 
 import pypdf
 from pdf2image import convert_from_path
@@ -63,7 +63,7 @@ class TextExtractor:
 
         return pages
 
-    def get_text_from_image(self, image_path: str) -> RawPageExtraction:
+    def get_text_from_image(self, image_path: str, page_number: Optional[int] = None) -> List[RawPageExtraction]:
 
         """
                 Process image with OCR
@@ -93,15 +93,17 @@ class TextExtractor:
         print(f"  Selected: {consensus.selected_engine} "
               f"(consensus: {consensus.consensus_score:.2%})")
         # return ocr_results
-        return RawPageExtraction(                
+        page_extraction = RawPageExtraction(                
+            page_number=page_number,
             image_path=image_path,
             extraction_method=ExtractionMethod.OCR_IMAGE,
             ocr_consensus=consensus,
             raw_text=consensus.best_result.text,
             orientation=consensus.orientation
-            # tokens=tokens,
-            # sentences=sentences,
+            #tokens=tokens,
+            #sentences=sentences,
         )
+        return [page_extraction]
 
 
 
@@ -145,7 +147,7 @@ class TextExtractor:
             pdf_path=pdf_path, page_number=page_number)
 
         # Process image with OCR
-        return self.get_text_from_image(temp_image_path, page_number)
+        return self.get_text_from_image(temp_image_path, page_number)[0]
 
     def get_ocr_for_pdf_pages(self, pdf_path: Path) -> List[RawPageExtraction]:
         """
@@ -167,7 +169,7 @@ class TextExtractor:
             image.save(temp_image_path)
 
             # Process with OCR
-            ocr_results = self.get_text_from_image(temp_image_path, page_num)
+            ocr_results.extend(self.get_text_from_image(temp_image_path, page_num))
 
         return ocr_results
 

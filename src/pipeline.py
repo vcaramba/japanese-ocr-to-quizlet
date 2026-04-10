@@ -35,8 +35,7 @@ class FlashcardPipeline:
             pages = self.text_extractor.process_pdf(file_path)
         else:
             # Single image
-            ocr_results = self.text_extractor.get_text_from_image(str(file_path))
-            pages = []
+            pages = self.text_extractor.get_text_from_image(str(file_path))
 
         session.page_extractions = pages
         session.status = SessionStatus.VALIDATING
