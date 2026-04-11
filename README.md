@@ -4,7 +4,7 @@ A single-user OCR & NLP pipeline that converts Japanese textbooks or books
 (PDF or images) into Quizlet-compatible sets of learning flashcards.
 
 The project focuses on:
-- OCR for vertically oriented Japanese text (kanji / hiragana / katakana / furigana) from Minna no Nihongo & So-Matome books
+- OCR for vertically oriented Japanese text (kanji / hiragana / katakana / furigana) from various textbooks
 - OCR kanji / furigana detection from tategaki text (horizontal, up-to-down, right-to-left as in Japanese novels) 
 - Tokenization and reading (furigana)
 - Manual validation via UI

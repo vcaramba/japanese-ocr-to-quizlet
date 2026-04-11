@@ -17,7 +17,7 @@ class TextExtractor:
         self.ocr_engines = [TesseractOCR(), EasyOCRImpl()]
         self.orientation_hint = text_orientation
 
-    def process_pdf(self, pdf_path: Path) -> List[RawPageExtraction]:
+    def get_text_from_pdf(self, pdf_path: Path) -> List[RawPageExtraction]:
         """
                Process PDF file
                First tries to extract text layer, falls back to OCR if needed
@@ -26,7 +26,7 @@ class TextExtractor:
                    pdf_path: Path to PDF file
 
                Returns:
-                   List of PageExtraction objects
+                   List of RawPageExtraction objects
                """
         pages = []
 
@@ -42,19 +42,19 @@ class TextExtractor:
                     # Successfully extracted text from PDF
                     print(f"Page {page_num + 1}: Extracted text from PDF layer")
 
-                    page_extraction = self.get_extracted_text(
+                    raw_page_extraction = self.get_extracted_text(
                         text=text,
                         page_number=page_num,
                         source_path=str(pdf_path)
                     )
-                    pages.append(page_extraction)
+                    pages.append(raw_page_extraction)
                 else:
                     # No text layer or no Japanese text, use OCR
                     print(f"Page {page_num + 1}: No text layer, using OCR")
-                    page_extraction = self.get_ocr_for_pdf_page(
+                    raw_page_extraction = self.get_ocr_for_pdf_page(
                         pdf_path=pdf_path,
                         page_number=page_num)
-                    pages.append(page_extraction)
+                    pages.append(raw_page_extraction)
 
         except Exception as e:
             print(f"Error reading PDF: {e}, falling back to OCR for all pages")

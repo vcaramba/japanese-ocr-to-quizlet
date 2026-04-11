@@ -40,3 +40,5 @@ def contains_kanji(text: str) -> bool:
             return True
 
     return False
+
+

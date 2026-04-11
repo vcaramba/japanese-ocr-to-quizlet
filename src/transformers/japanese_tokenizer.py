@@ -3,16 +3,18 @@ from typing import List
 from fugashi import Tagger
 
 from models.data_models import JapaneseToken
+import re
+from validators.characters_validator import contains_kanji
 
 """
-Japanese Tokenizer
+Japanese Tokenizer (Fugashi)
 Segments Japanese text into words with readings and part-of-speech tags
 """
 
 
 class JapaneseTokenizer:
-    def __init__(self, tokenizer_type: str):
-        self.tokenizer_type = tokenizer_type
+    def __init__(self):
+        self.tagger = Tagger()
 
     def tokenize(self, text: str) -> List[JapaneseToken]:
         """Tokenize Japanese text into words with readings
@@ -42,7 +44,7 @@ class JapaneseTokenizer:
             pos = word.feature.pos1 if hasattr(word.feature, 'pos1') else "unknown"
 
             # Check if contains kanji
-            has_kanji = self.contains_kanji(surface)
+            has_kanji = contains_kanji(surface)
 
             # Create token
             token = JapaneseToken(
@@ -57,12 +59,31 @@ class JapaneseTokenizer:
             tokens.append(token)
 
         return tokens
+    
+    def convert_katakana_to_hiragana(self, text: str) -> str:
+        """
+        Convert katakana to hiragana
+        
+        Args:
+            text: Text in katakana
+            
+        Returns:
+            Text in hiragana
+        """
+        hiragana = []
+        for char in text:
+            # Katakana range: 0x30A0 - 0x30FF
+            # Hiragana range: 0x3040 - 0x309F
+            # Difference: 0x0060
+            if '\u30a0' <= char <= '\u30ff':
+                hiragana.append(chr(ord(char) - 0x60))
+            else:
+                hiragana.append(char)
+        
+        return ''.join(hiragana)
+    
+    
 
-
-class FugashiTokenizer(JapaneseTokenizer):
-    def __init__(self):
-        super().__init__("Fugashi")
-        self.tagger = Tagger()
 
 
 
