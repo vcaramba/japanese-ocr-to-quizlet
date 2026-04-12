@@ -72,7 +72,7 @@ if st.button("🚀 Process Documents", type="primary", disabled=not uploaded_fil
         # Save session
         session_path = Path(f"data/processing/session_{session.session_id}")
         session_path.mkdir(parents=True, exist_ok=True)
-        (session_path / "session.json").write_text(session.json())
+        (session_path / "session.json").write_text(session.json(), encoding='utf-8')
         
         st.session_state.processing_status = "validating"
 

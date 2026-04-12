@@ -79,6 +79,8 @@ class FlashcardPipeline:
             sentences=sentences,
             orientation=orientation
         )
+    
+    
 
     def generate_flashcards(
             self,

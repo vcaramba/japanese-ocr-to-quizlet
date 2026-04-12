@@ -70,6 +70,11 @@ Quizlet CSV Export
 #Install Tesseract OCR:
 - https://tesseract-ocr.github.io/tessdoc/Installation.html
 
+#Install Fugashi:
+- pip install 'fugashi[unidic]'
+- python -m unidic download
+- for mor details visit https://github.com/polm/fugashi
+
 #Add your DeepL API key to .env:
 - DEEPL_API_KEY=your-key-here
 - Get free key at: https://www.deepl.com/pro-api

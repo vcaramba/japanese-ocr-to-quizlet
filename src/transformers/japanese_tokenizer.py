@@ -24,10 +24,12 @@ class JapaneseTokenizer:
         Returns:
             List of JapaneseToken objects
         """
+        print(f"Tokenizing text: {text[:30]}...")  # Debug log
         if not text or not text.strip():
             return []
 
         tokens = []
+        # self.tagger.parse(text)  # Pre-parse to initialize the tagger
 
         for word in self.tagger(text):
             # Extract features
@@ -35,16 +37,17 @@ class JapaneseTokenizer:
 
             # Get reading (kana)
             # feature[7] is the reading in katakana
-            reading = word.feature.kana if hasattr(word.feature, 'kana') else surface
+            reading = word.feature.kana if hasattr(word.feature, 'kana') and word.feature.kana else surface
 
             # Get base form (dictionary form)
-            base_form = word.feature.lemma if hasattr(word.feature, 'lemma') else surface
+            base_form = word.feature.lemma if hasattr(word.feature, 'lemma') and word.feature.lemma else surface
 
             # Get part of speech
-            pos = word.feature.pos1 if hasattr(word.feature, 'pos1') else "unknown"
+            pos = word.feature.pos1 if hasattr(word.feature, 'pos1') and word.feature.pos1 else "unknown"
 
             # Check if contains kanji
             has_kanji = contains_kanji(surface)
+            print(f"Token: {surface}, Reading: {reading}, Base: {base_form}, POS: {pos}, Has Kanji: {has_kanji}")  # Debug log
 
             # Create token
             token = JapaneseToken(
@@ -55,6 +58,7 @@ class JapaneseTokenizer:
                 has_kanji=has_kanji,
                 confidence=1.0
             )
+            print(f"Created token: {token}")  # Debug log
 
             tokens.append(token)
 
@@ -70,6 +74,9 @@ class JapaneseTokenizer:
         Returns:
             Text in hiragana
         """
+        if text is None:
+            return ""
+        
         hiragana = []
         for char in text:
             # Katakana range: 0x30A0 - 0x30FF

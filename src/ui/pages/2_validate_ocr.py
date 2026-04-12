@@ -30,7 +30,7 @@ if not pending_pages:
 page_idx = st.selectbox(
     "Select page to validate",
     range(len(pending_pages)),
-    format_func=lambda i: f"Page {pending_pages[i].page_number + 1}"
+    format_func=lambda i: f"Page {(pending_pages[i].page_number or i) + 1}"
 )
 
 current_page = pending_pages[page_idx]
@@ -49,27 +49,36 @@ with col2:
     st.subheader("OCR Results")
     
     # Show all OCR engine results
-    for result in current_page.ocr_consensus.all_results:
-        with st.expander(
-            f"{result.engine} (confidence: {result.confidence:.2%})",
-            expanded=(result.engine == current_page.ocr_consensus.selected_engine)
-        ):
-            st.code(result.text, language=None)
-            if st.button(f"Use {result.engine}", key=f"use_{result.engine}"):
-                current_page.ocr_consensus.selected_text = result.text
-                current_page.ocr_consensus.selected_engine = result.engine
+    if current_page.ocr_consensus and current_page.ocr_consensus.all_results:
+        for result in current_page.ocr_consensus.all_results:
+            with st.expander(
+                f"{result.engine} (confidence: {result.confidence:.2%})",
+                expanded=(result.engine == current_page.ocr_consensus.selected_engine)
+            ):
+                st.code(result.text, language=None)
+                if st.button(f"Use {result.engine}", key=f"use_{result.engine}"):
+                    current_page.ocr_consensus.selected_text = result.text
+                    current_page.ocr_consensus.selected_engine = result.engine
     
-    st.divider()
-    
-    # Manual correction
-    st.subheader("Corrected Text")
-    corrected_text = st.text_area(
-        "Edit if needed",
-        value=current_page.ocr_consensus.corrected_text or 
+        st.divider()
+
+        # Manual correction
+        st.subheader("Corrected Text")
+        corrected_text = st.text_area(
+            "Edit if needed",
+            value=current_page.ocr_consensus.corrected_text or 
               current_page.ocr_consensus.selected_text,
-        height=200,
-        key="correction"
-    )
+            height=200,
+            key="correction"
+        )
+    else:
+        st.warning("No OCR results available for this page.")
+        corrected_text = st.text_area(
+            "Enter text manually",
+            height=200,
+            key="manual_entry"
+        )    
+    
     
     notes = st.text_input("Notes (optional)", key="notes")
 
@@ -86,7 +95,7 @@ with col1:
         current_page.validation_status = ValidationStatus.VALIDATED
         
         # Save session
-        (session_path / "session.json").write_text(session.json())
+        (session_path / "session.json").write_text(session.json(), encoding='utf-8')
         st.success("Page validated!")
         st.rerun()
 
@@ -97,7 +106,7 @@ with col2:
 with col3:
     if st.button("❌ Reject", use_container_width=True):
         current_page.validation_status = ValidationStatus.REJECTED
-        (session_path / "session.json").write_text(session.json())
+        (session_path / "session.json").write_text(session.json(), encoding='utf-8')
         st.rerun()
 
 # Progress indicator
