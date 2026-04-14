@@ -92,7 +92,7 @@ class TextExtractor:
         consensus = self.ocr_selector.select_best(ocr_results)
         print(f"  Selected: {consensus.selected_engine} "
               f"(consensus: {consensus.consensus_score:.2%})")
-        # return ocr_results
+        
         page_extraction = RawPageExtraction(                
             page_number=page_number,
             image_path=image_path,
@@ -100,11 +100,8 @@ class TextExtractor:
             ocr_consensus=consensus,
             raw_text=consensus.best_result.text,
             orientation=consensus.orientation
-            #tokens=tokens,
-            #sentences=sentences,
         )
         return [page_extraction]
-
 
 
     def get_temp_file_dir(self, page_number: int) -> str:
@@ -188,20 +185,9 @@ class TextExtractor:
             source_path: Source file path
 
         Returns:
-            PageExtraction object
+            RawPageExtraction object
         """
-        # # Clean text
-        # cleaned_text = self.text_cleaner.clean(text)
-        #
-        # # Detect orientation
-        # orientation = self.text_cleaner.detect_orientation(cleaned_text)
-        #
-        # # Tokenize
-        # tokens = self.tokenizer.tokenize(cleaned_text)
-        #
-        # # Get sentences
-        # sentences = self.tokenizer.get_sentences(cleaned_text)
-
+       
         return RawPageExtraction(
             page_number=page_number,
             image_path=source_path,

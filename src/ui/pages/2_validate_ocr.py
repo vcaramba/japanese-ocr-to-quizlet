@@ -49,8 +49,10 @@ with col2:
     st.subheader("OCR Results")
     
     # Show all OCR engine results
-    if current_page.ocr_consensus and current_page.ocr_consensus.all_results:
-        for result in current_page.ocr_consensus.all_results:
+    
+    if current_page.ocr_consensus and current_page.ocr_consensus.best_result:
+        print(current_page.ocr_consensus)
+        for result in current_page.ocr_consensus.best_result:
             with st.expander(
                 f"{result.engine} (confidence: {result.confidence:.2%})",
                 expanded=(result.engine == current_page.ocr_consensus.selected_engine)

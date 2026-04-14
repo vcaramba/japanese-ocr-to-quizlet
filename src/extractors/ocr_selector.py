@@ -64,13 +64,15 @@ class OCRSelector:
             raise ValueError("No OCR results provided")
 
         if len(results) == 1:
-            return OCRConsensus(
+            result = OCRConsensus(
                 selected_text=results[0].text,
                 selected_engine=results[0].engine,
                 best_result=results[0],
                 consensus_score=results[0].confidence,
                 orientation=results[0].orientation
             )
+            print (result)
+            return result
 
         if strategy == OCRSelectionStrategy.CONFIDENCE_WEIGHTED:
             selected = self.confidence_weighted_selection(results)
@@ -87,13 +89,17 @@ class OCRSelector:
         # Determine orientation (use most common)
         orientation = self.determine_orientation(results)
 
-        return OCRConsensus(
+        result = OCRConsensus(
             selected_text=selected.text,
             selected_engine=selected.engine,
             best_result=selected,
             consensus_score=consensus_score,
             orientation=orientation
         )
+
+        print(result)
+
+        return result
 
     def confidence_weighted_selection(self, results: List[OCRResult]) -> OCRResult:
         """

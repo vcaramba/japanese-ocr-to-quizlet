@@ -72,6 +72,43 @@ class FlashcardPipeline:
         return PageExtraction(
             page_number=raw_page_extraction.page_number,
             image_path=raw_page_extraction.image_path,
+            extraction_method=raw_page_extraction.extraction_method,
+            ocr_consensus=raw_page_extraction.ocr_consensus,
+            raw_text=cleaned_text,
+            tokens=tokens,
+            sentences=sentences,
+            orientation=orientation
+        )
+    
+    def process_image(
+        self, raw_page_extraction: RawPageExtraction
+    ) -> PageExtraction:
+        """
+        Process raw extracted text extracted from image (OCR)
+        
+        Args:
+            raw_page_extraction: RawPageExtraction object containing the extracted text and metadata
+            
+        Returns:
+            PageExtraction object
+        """
+        # Clean text
+        cleaned_text = self.text_cleaner.clean(raw_page_extraction.raw_text)
+        
+        # Detect orientation
+        orientation = self.text_cleaner.detect_orientation(cleaned_text)
+        
+        # Tokenize
+        tokens = self.tokenizer.tokenize(cleaned_text)
+        
+        # Get sentences (TODO: should this be done before tokenization?)
+        sentences = self.text_cleaner.get_sentences(cleaned_text)
+        
+        #TODO: handle case when no OCR consensus is available (e.g. text layer only)
+        # TODO: currently using this method for both cases (OCR and PDF text layer). Should we split into separate methods for clarity?
+        return PageExtraction(
+            page_number=raw_page_extraction.page_number,
+            image_path=raw_page_extraction.image_path,
             extraction_method=ExtractionMethod.PDF_TEXT_LAYER,
             ocr_consensus=None,  # No OCR was used
             raw_text=cleaned_text,
@@ -80,7 +117,7 @@ class FlashcardPipeline:
             orientation=orientation
         )
     
-    
+
 
     def generate_flashcards(
             self,
