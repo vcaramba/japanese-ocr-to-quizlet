@@ -103,9 +103,7 @@ class FlashcardPipeline:
         
         # Get sentences (TODO: should this be done before tokenization?)
         sentences = self.text_cleaner.get_sentences(cleaned_text)
-        
-        #TODO: handle case when no OCR consensus is available (e.g. text layer only)
-        # TODO: currently using this method for both cases (OCR and PDF text layer). Should we split into separate methods for clarity?
+       
         return PageExtraction(
             page_number=raw_page_extraction.page_number,
             image_path=raw_page_extraction.image_path,

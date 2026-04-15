@@ -80,7 +80,6 @@ class TextExtractor:
             try:
                 result = engine.extract(image_path, self.orientation_hint)
                 ocr_results.append(result)
-                print(ocr_results)
                 print(f"  {engine.name}: {result.confidence:.2%} confidence")
             except Exception as e:
                 print(f"  {engine.name} failed: {e}")
@@ -101,6 +100,7 @@ class TextExtractor:
             raw_text=consensus.best_result.text,
             orientation=consensus.orientation
         )
+        print(f"  RawPageExtraction for image OCR: {[page_extraction]}")
         return [page_extraction]
 
 
@@ -144,7 +144,9 @@ class TextExtractor:
             pdf_path=pdf_path, page_number=page_number)
 
         # Process image with OCR
-        return self.get_text_from_image(temp_image_path, page_number)[0]
+        result = self.get_text_from_image(temp_image_path, page_number)[0]
+        print(f"  OCR result: {result}")
+        return result
 
     def get_ocr_for_pdf_pages(self, pdf_path: Path) -> List[RawPageExtraction]:
         """

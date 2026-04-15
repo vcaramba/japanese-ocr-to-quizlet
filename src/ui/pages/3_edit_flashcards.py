@@ -15,14 +15,14 @@ if not st.session_state.session_id:
     st.stop()
 
 session_path = Path(f"data/processing/session_{st.session_state.session_id}")
-session = ProcessingSession.parse_file(session_path / "session.json")
+session = ProcessingSession.parse_file(session_path / "session.json", encoding='utf-8')
 
 # Generate flashcards if not already done
 if not session.flashcard_set:
     with st.spinner("Generating flashcards from validated OCR..."):
         pipeline = FlashcardPipeline()
         session.flashcard_set = pipeline.generate_flashcards(session)
-        (session_path / "session.json").write_text(session.json())
+        (session_path / "session.json").write_text(session.json(), encoding='utf-8')
 
 flashcards = session.flashcard_set.cards
 
@@ -85,7 +85,7 @@ if st.button("💾 Save Changes", type="primary"):
         card.back_translation = row["Translation"]
         card.user_edited = True
     
-    (session_path / "session.json").write_text(session.json())
+    (session_path / "session.json").write_text(session.json(), encoding='utf-8')
     st.success("Changes saved!")
 
 # Export section
