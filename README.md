@@ -4,7 +4,7 @@ A single-user OCR & NLP pipeline that converts Japanese textbooks or books
 (PDF or images) into Quizlet-compatible sets of learning flashcards.
 
 The project focuses on:
-- OCR for vertically oriented Japanese text (kanji / hiragana / katakana / furigana) from Minna no Nihongo & So-Matome books
+- OCR for vertically oriented Japanese text (kanji / hiragana / katakana / furigana) from various textbooks
 - OCR kanji / furigana detection from tategaki text (horizontal, up-to-down, right-to-left as in Japanese novels) 
 - Tokenization and reading (furigana)
 - Manual validation via UI
@@ -69,6 +69,11 @@ Quizlet CSV Export
 - Windows installation: py -m pip install --only-binary :all: -r requirements.txt
 #Install Tesseract OCR:
 - https://tesseract-ocr.github.io/tessdoc/Installation.html
+
+#Install Fugashi:
+- pip install 'fugashi[unidic]'
+- python -m unidic download
+- for mor details visit https://github.com/polm/fugashi
 
 #Add your DeepL API key to .env:
 - DEEPL_API_KEY=your-key-here

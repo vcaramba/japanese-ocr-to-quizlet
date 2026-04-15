@@ -4,11 +4,11 @@ import os
 from typing import List, Optional
 
 from extractors.text_extractor import TextExtractor
-from models.data_models import FlashcardSet, ProcessingSession, Flashcard, SessionStatus, \
+from models.data_models import ExtractionMethod, FlashcardSet, PageExtraction, ProcessingSession, Flashcard, RawPageExtraction, SessionStatus, \
     TextOrientation
-from src.transformers.text_transformer import TextTransformer
-from src.transformers.japanese_tokenizers import JapaneseTokenizer
+from src.transformers.japanese_tokenizer import JapaneseTokenizer
 from src.transformers.translator import Translator
+from src.transformers.text_cleaner import TextCleaner
 
 
 class FlashcardPipeline:
@@ -16,8 +16,8 @@ class FlashcardPipeline:
         self.ocr_engines = ocr_engines
         self.orientation_hint = orientation_hint
         self.text_extractor = TextExtractor(self.orientation_hint)
-        self.text_transformer = TextTransformer()
-        self.tokenizer = JapaneseTokenizer("Fugashi")
+        self.text_cleaner = TextCleaner()
+        self.tokenizer = JapaneseTokenizer()
         self.translator = Translator(deepl_api_key)
 
     def process_document(self, file_path: str) -> ProcessingSession:
@@ -32,15 +32,90 @@ class FlashcardPipeline:
 
         # Check file type
         if file_path.suffix.lower() == '.pdf':
-            pages = self.text_extractor.process_pdf(file_path)
+            raw_pages = self.text_extractor.get_text_from_pdf(file_path)
+            pages = [self.process_extracted_text(raw_page) for raw_page in raw_pages]
+
         else:
             # Single image
-            pages = self.text_extractor.get_text_from_image(str(file_path))
+            raw_pages = self.text_extractor.get_text_from_image(str(file_path))
+            pages = [self.process_extracted_text(raw_page) for raw_page in raw_pages]
 
         session.page_extractions = pages
         session.status = SessionStatus.VALIDATING
 
         return session
+    
+    def process_extracted_text(
+        self, raw_page_extraction: RawPageExtraction
+    ) -> PageExtraction:
+        """
+        Process raw extracted text extracted directly from PDF
+        
+        Args:
+            raw_page_extraction: RawPageExtraction object containing the extracted text and metadata
+            
+        Returns:
+            PageExtraction object
+        """
+        # Clean text
+        cleaned_text = self.text_cleaner.clean(raw_page_extraction.raw_text)
+        
+        # Detect orientation
+        orientation = self.text_cleaner.detect_orientation(cleaned_text)
+        
+        # Tokenize
+        tokens = self.tokenizer.tokenize(cleaned_text)
+        
+        # Get sentences (TODO: should this be done before tokenization?)
+        sentences = self.text_cleaner.get_sentences(cleaned_text)
+        
+        return PageExtraction(
+            page_number=raw_page_extraction.page_number,
+            image_path=raw_page_extraction.image_path,
+            extraction_method=raw_page_extraction.extraction_method,
+            ocr_consensus=raw_page_extraction.ocr_consensus,
+            raw_text=cleaned_text,
+            tokens=tokens,
+            sentences=sentences,
+            orientation=orientation
+        )
+    
+    def process_image(
+        self, raw_page_extraction: RawPageExtraction
+    ) -> PageExtraction:
+        """
+        Process raw extracted text extracted from image (OCR)
+        
+        Args:
+            raw_page_extraction: RawPageExtraction object containing the extracted text and metadata
+            
+        Returns:
+            PageExtraction object
+        """
+        # Clean text
+        cleaned_text = self.text_cleaner.clean(raw_page_extraction.raw_text)
+        
+        # Detect orientation
+        orientation = self.text_cleaner.detect_orientation(cleaned_text)
+        
+        # Tokenize
+        tokens = self.tokenizer.tokenize(cleaned_text)
+        
+        # Get sentences (TODO: should this be done before tokenization?)
+        sentences = self.text_cleaner.get_sentences(cleaned_text)
+       
+        return PageExtraction(
+            page_number=raw_page_extraction.page_number,
+            image_path=raw_page_extraction.image_path,
+            extraction_method=ExtractionMethod.PDF_TEXT_LAYER,
+            ocr_consensus=None,  # No OCR was used
+            raw_text=cleaned_text,
+            tokens=tokens,
+            sentences=sentences,
+            orientation=orientation
+        )
+    
+
 
     def generate_flashcards(
             self,

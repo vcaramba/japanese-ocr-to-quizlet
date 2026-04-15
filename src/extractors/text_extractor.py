@@ -17,7 +17,7 @@ class TextExtractor:
         self.ocr_engines = [TesseractOCR(), EasyOCRImpl()]
         self.orientation_hint = text_orientation
 
-    def process_pdf(self, pdf_path: Path) -> List[RawPageExtraction]:
+    def get_text_from_pdf(self, pdf_path: Path) -> List[RawPageExtraction]:
         """
                Process PDF file
                First tries to extract text layer, falls back to OCR if needed
@@ -26,7 +26,7 @@ class TextExtractor:
                    pdf_path: Path to PDF file
 
                Returns:
-                   List of PageExtraction objects
+                   List of RawPageExtraction objects
                """
         pages = []
 
@@ -42,19 +42,19 @@ class TextExtractor:
                     # Successfully extracted text from PDF
                     print(f"Page {page_num + 1}: Extracted text from PDF layer")
 
-                    page_extraction = self.get_extracted_text(
+                    raw_page_extraction = self.get_extracted_text(
                         text=text,
                         page_number=page_num,
                         source_path=str(pdf_path)
                     )
-                    pages.append(page_extraction)
+                    pages.append(raw_page_extraction)
                 else:
                     # No text layer or no Japanese text, use OCR
                     print(f"Page {page_num + 1}: No text layer, using OCR")
-                    page_extraction = self.get_ocr_for_pdf_page(
+                    raw_page_extraction = self.get_ocr_for_pdf_page(
                         pdf_path=pdf_path,
                         page_number=page_num)
-                    pages.append(page_extraction)
+                    pages.append(raw_page_extraction)
 
         except Exception as e:
             print(f"Error reading PDF: {e}, falling back to OCR for all pages")
@@ -80,7 +80,6 @@ class TextExtractor:
             try:
                 result = engine.extract(image_path, self.orientation_hint)
                 ocr_results.append(result)
-                print(ocr_results)
                 print(f"  {engine.name}: {result.confidence:.2%} confidence")
             except Exception as e:
                 print(f"  {engine.name} failed: {e}")
@@ -92,7 +91,7 @@ class TextExtractor:
         consensus = self.ocr_selector.select_best(ocr_results)
         print(f"  Selected: {consensus.selected_engine} "
               f"(consensus: {consensus.consensus_score:.2%})")
-        # return ocr_results
+        
         page_extraction = RawPageExtraction(                
             page_number=page_number,
             image_path=image_path,
@@ -100,11 +99,9 @@ class TextExtractor:
             ocr_consensus=consensus,
             raw_text=consensus.best_result.text,
             orientation=consensus.orientation
-            #tokens=tokens,
-            #sentences=sentences,
         )
+        print(f"  RawPageExtraction for image OCR: {[page_extraction]}")
         return [page_extraction]
-
 
 
     def get_temp_file_dir(self, page_number: int) -> str:
@@ -147,7 +144,9 @@ class TextExtractor:
             pdf_path=pdf_path, page_number=page_number)
 
         # Process image with OCR
-        return self.get_text_from_image(temp_image_path, page_number)[0]
+        result = self.get_text_from_image(temp_image_path, page_number)[0]
+        print(f"  OCR result: {result}")
+        return result
 
     def get_ocr_for_pdf_pages(self, pdf_path: Path) -> List[RawPageExtraction]:
         """
@@ -188,20 +187,9 @@ class TextExtractor:
             source_path: Source file path
 
         Returns:
-            PageExtraction object
+            RawPageExtraction object
         """
-        # # Clean text
-        # cleaned_text = self.text_cleaner.clean(text)
-        #
-        # # Detect orientation
-        # orientation = self.text_cleaner.detect_orientation(cleaned_text)
-        #
-        # # Tokenize
-        # tokens = self.tokenizer.tokenize(cleaned_text)
-        #
-        # # Get sentences
-        # sentences = self.tokenizer.get_sentences(cleaned_text)
-
+       
         return RawPageExtraction(
             page_number=page_number,
             image_path=source_path,

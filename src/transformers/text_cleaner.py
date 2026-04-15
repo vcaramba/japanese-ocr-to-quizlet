@@ -1,4 +1,6 @@
-from sympy import re
+from typing import List
+
+import re
 import jaconv
 
 from models.data_models import TextOrientation
@@ -28,6 +30,7 @@ class TextCleaner:
         text = self.remove_extra_whitespace(text)
         
         return text
+    
     def remove_furigana_brackets(self, text: str) -> str:
         """
         Remove furigana in parentheses
@@ -126,4 +129,48 @@ class TextCleaner:
         # Trim whitespace at start and end
         text = text.strip()
         
+        return text    
+    
+    def convert_vertical_to_horizontal(self, text: str) -> str:
+        """
+        Convert vertical text layout to horizontal
+        (If OCR detected vertical text but we want horizontal processing)
+        
+        Args:
+            text: Text in vertical layout
+            
+        Returns:
+            Text in horizontal layout
+        """
+        # For vertical text, often each line is a column
+        # This is a simple approach - may need refinement
+        
+        lines = text.split('\n')
+        
+        # If many short lines, might be vertical
+        if len(lines) > 5 and all(len(line) < 20 for line in lines):
+            # Join with spaces (horizontal reading)
+            return ' '.join(lines)
+        
         return text
+    
+    def get_sentences(self, text: str) -> List[str]:
+        """
+        Split text into sentences
+        
+        Args:
+            text: Japanese text
+            
+        Returns:
+            List of sentences
+        """
+        # Simple sentence splitting on Japanese punctuation
+        
+        
+        # Split on sentence-ending punctuation
+        sentences = re.split(r'[。！？\n]+', text)
+        
+        # Filter out empty sentences
+        sentences = [s.strip() for s in sentences if s.strip()]
+        
+        return sentences    
