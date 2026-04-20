@@ -4,7 +4,7 @@ from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from models.data_models import ProcessingSession, ValidationStatus
+from models.data_models import FlashcardSet, ProcessingSession, ValidationStatus
 from PIL import Image
 
 st.title("✅ Validate OCR Results")
@@ -16,7 +16,7 @@ if not st.session_state.session_id:
 
 # Load session
 session_path = Path(f"data/processing/session_{st.session_state.session_id}")
-session = ProcessingSession.parse_file(session_path / "session.json")
+session = ProcessingSession.parse_file(session_path / "session.json", encoding='utf-8')
 
 # Page selector
 pending_pages = [p for p in session.page_extractions 
@@ -61,6 +61,9 @@ with col2:
                 if st.button(f"Use {result.engine}", key=f"use_{result.engine}"):
                     current_page.ocr_consensus.selected_text = result.text
                     current_page.ocr_consensus.selected_engine = result.engine
+        # print(current_page.ocr_consensus.selected_text)
+        # parsed_cards = session.flashcard_set.cards if session.flashcard_set else []
+        # session.validated_set = FlashcardSet(cards=parsed_cards)
     
         st.divider()
 

@@ -43,6 +43,3 @@ with st.sidebar:
         if st.button("Clear Session"):
             st.session_state.session_id = None
             st.rerun()
-
-
-print("DEBUG DEEPL_API_KEY:", os.getenv("DEEPL_API_KEY"))

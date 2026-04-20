@@ -71,7 +71,7 @@ class OCRSelector:
                 consensus_score=results[0].confidence,
                 orientation=results[0].orientation
             )
-            print (result)
+            #print (result)
             return result
 
         if strategy == OCRSelectionStrategy.CONFIDENCE_WEIGHTED:
@@ -97,7 +97,7 @@ class OCRSelector:
             orientation=orientation
         )
 
-        print(result)
+        #print(result)
 
         return result
 

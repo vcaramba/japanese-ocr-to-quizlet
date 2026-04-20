@@ -63,6 +63,36 @@ Manual Validation UI
 v
 Quizlet CSV Export
 
+#Workflow overview:
+1. Upload Document (1_upload_and_process.py)
+   ↓
+   - Upload PDF or image
+   - Configure OCR engines
+   - Click "Process Document"
+   - View processing summary
+   ↓
+
+2. Validate OCR (2_validate_ocr.py)
+   ↓
+   - Review each page
+   - Approve correct results
+   - Correct OCR errors
+   - Save corrections as training data
+   ↓
+
+3. Edit Flashcards (3_edit_flashcards.py)
+   ↓
+   - Review generated flashcards
+   - Edit front/reading/translation
+   - Approve or reject cards
+   - Apply filters and sorting
+   - Remove rejected cards
+   ↓
+
+4. Export
+   ↓
+   - Download as Quizlet CSV
+
 
 #Install necessary dependencies:
 - pip install -r requirements.txt

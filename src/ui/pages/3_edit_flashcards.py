@@ -18,6 +18,7 @@ session_path = Path(f"data/processing/session_{st.session_state.session_id}")
 session = ProcessingSession.parse_file(session_path / "session.json", encoding='utf-8')
 
 # Generate flashcards if not already done
+# if not session.validated_set:
 if not session.flashcard_set:
     with st.spinner("Generating flashcards from validated OCR..."):
         pipeline = FlashcardPipeline()
@@ -94,7 +95,7 @@ st.subheader("📥 Export")
 
 
 if st.button("Export to Quizlet CSV", use_container_width=True):
-    csv_data = session.flashcard_set.to_quizlet_csv()
+    csv_data = session.validated_set.to_quizlet_csv()
     st.download_button(
             "Download CSV",
             csv_data,

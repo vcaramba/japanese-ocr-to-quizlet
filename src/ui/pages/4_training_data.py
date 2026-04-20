@@ -34,7 +34,7 @@ with tab1:
         
         orientation = st.selectbox(
             "Text orientation",
-            [TextOrientation.VERTICAL, TextOrientation.HORIZONTAL, TextOrientation.MIXED]
+            [TextOrientation.VERTICAL, TextOrientation.HORIZONTAL, TextOrientation.AUTO_DETECT]
         )
         
         source_type = st.text_input(

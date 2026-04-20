@@ -13,6 +13,12 @@ class TextOrientation(str, Enum):
     VERTICAL = "vertical"
     AUTO_DETECT = "auto_detect"
 
+ORIENTATION_MAP = {
+    "Horizontal (yokogaki)": "horizontal",
+    "Vertical (tategaki)": "vertical",
+    "Auto detect": "auto_detect",
+}
+
 
 class ValidationStatus(str, Enum):
     PENDING = "pending"
@@ -121,8 +127,10 @@ class ProcessingSession(BaseModel):
     source_files: List[str]
     created_at: datetime = Field(default_factory=datetime.now)
     status: SessionStatus = SessionStatus.PROCESSING
+    text_orientation: Optional[TextOrientation] = None
     page_extractions: List['PageExtraction'] = []
     flashcard_set: Optional['FlashcardSet'] = None
+    validated_set: Optional['FlashcardSet'] = None
 
 
 class RawPageExtraction(BaseModel):

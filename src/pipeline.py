@@ -3,13 +3,17 @@ from pathlib import Path
 import os
 from typing import List, Optional
 
+from PIL import report
+
 from extractors.text_extractor import TextExtractor
-from models.data_models import ExtractionMethod, FlashcardSet, PageExtraction, ProcessingSession, Flashcard, RawPageExtraction, SessionStatus, \
-    TextOrientation
+from models.data_models import ORIENTATION_MAP, ExtractionMethod, FlashcardSet, PageExtraction, ProcessingSession, Flashcard, RawPageExtraction, SessionStatus, \
+    TextOrientation, ValidationStatus
 from src.transformers.japanese_tokenizer import JapaneseTokenizer
 from src.transformers.translator import Translator
 from src.transformers.text_cleaner import TextCleaner
-
+from src.validators.ocr_validator import OCRValidator
+from src.validators.flashcard_validator import FlashcardValidator
+from validators import ocr_validator
 
 class FlashcardPipeline:
     def __init__(self, ocr_engines: Optional[List[str]] = None, orientation_hint: Optional[TextOrientation] = None, deepl_api_key: Optional[str] = None):
@@ -19,6 +23,8 @@ class FlashcardPipeline:
         self.text_cleaner = TextCleaner()
         self.tokenizer = JapaneseTokenizer()
         self.translator = Translator(deepl_api_key)
+        self.ocr_validator = OCRValidator(auto_validate_threshold=0.95)
+        self.flashcard_validator = FlashcardValidator(min_confidence=0.5)
 
     def process_document(self, file_path: str) -> ProcessingSession:
         """Main entry point"""
@@ -27,7 +33,8 @@ class FlashcardPipeline:
         # Create session
         session = ProcessingSession(
             source_files=[str(file_path)],
-            status=SessionStatus.PROCESSING
+            status=SessionStatus.PROCESSING,
+            text_orientation=ORIENTATION_MAP.get(self.orientation_hint, TextOrientation.AUTO_DETECT)
         )
 
         # Check file type
@@ -42,6 +49,7 @@ class FlashcardPipeline:
 
         session.page_extractions = pages
         session.status = SessionStatus.VALIDATING
+        
 
         return session
     
@@ -62,9 +70,11 @@ class FlashcardPipeline:
         
         # Detect orientation
         orientation = self.text_cleaner.detect_orientation(cleaned_text)
+        print(cleaned_text[:100])  # Debug log
         
         # Tokenize
         tokens = self.tokenizer.tokenize(cleaned_text)
+        print(tokens[:10])  # Debug log
         
         # Get sentences (TODO: should this be done before tokenization?)
         sentences = self.text_cleaner.get_sentences(cleaned_text)
@@ -149,8 +159,12 @@ class FlashcardPipeline:
                             token_contexts[token.surface] = sentence
                             break
 
-        # Filter tokens (only keep those with kanji for now)
-        flashcard_tokens = [t for t in all_tokens if t.has_kanji]
+        # Filter tokens for tategaki - only keep those with kanji
+        if session.text_orientation == TextOrientation.VERTICAL:
+            flashcard_tokens = [t for t in all_tokens if t.has_kanji]
+        else:
+            #TODO: front card should be in japanese, back card should be in english. For now we will just translate all tokens, but in the future we may want to only translate those that are coming from text without translation provided (e.g. tategaki)
+            flashcard_tokens = all_tokens
 
         # Translate tokens
         print(f"Translating {len(flashcard_tokens)} tokens...")
