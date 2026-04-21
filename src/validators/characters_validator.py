@@ -1,3 +1,5 @@
+import re
+
 def contains_japanese(text: str) -> bool:
     """
     Check if text contains Japanese characters
@@ -40,5 +42,8 @@ def contains_kanji(text: str) -> bool:
             return True
 
     return False
+
+def contains_english(text: str) -> bool:
+    return bool(re.search(r'[A-Za-z]', text))
 
 

@@ -148,7 +148,7 @@ class RawPageExtraction(BaseModel):
 
 class PageExtraction(RawPageExtraction):
     """Intermediate result per page"""
-    tokens: List[JapaneseToken] = []
+    tokens: Optional[List[JapaneseToken]] = []
     sentences: List[str] = []
     validation_status: ValidationStatus = ValidationStatus.PENDING
 

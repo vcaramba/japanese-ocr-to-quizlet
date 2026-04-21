@@ -21,7 +21,7 @@ class FlashcardPipeline:
         self.orientation_hint = orientation_hint
         self.text_extractor = TextExtractor(self.orientation_hint)
         self.text_cleaner = TextCleaner()
-        self.tokenizer = JapaneseTokenizer()
+        self.tokenizer = JapaneseTokenizer(ORIENTATION_MAP.get(self.orientation_hint, TextOrientation.AUTO_DETECT))
         self.translator = Translator(deepl_api_key)
         self.ocr_validator = OCRValidator(auto_validate_threshold=0.95)
         self.flashcard_validator = FlashcardValidator(min_confidence=0.5)
@@ -70,12 +70,12 @@ class FlashcardPipeline:
         
         # Detect orientation
         orientation = self.text_cleaner.detect_orientation(cleaned_text)
-        print(cleaned_text[:100])  # Debug log
+        print(cleaned_text[:100])  # Debug log     
         
-        # Tokenize
+        
         tokens = self.tokenizer.tokenize(cleaned_text)
         print(tokens[:10])  # Debug log
-        
+       
         # Get sentences (TODO: should this be done before tokenization?)
         sentences = self.text_cleaner.get_sentences(cleaned_text)
         
@@ -107,12 +107,9 @@ class FlashcardPipeline:
         
         # Detect orientation
         orientation = self.text_cleaner.detect_orientation(cleaned_text)
-        
-        # Tokenize
         tokens = self.tokenizer.tokenize(cleaned_text)
-        
-        # Get sentences (TODO: should this be done before tokenization?)
-        sentences = self.text_cleaner.get_sentences(cleaned_text)
+        sentences = self.text_cleaner.get_sentences(cleaned_text)       
+     
        
         return PageExtraction(
             page_number=raw_page_extraction.page_number,
