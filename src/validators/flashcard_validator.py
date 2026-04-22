@@ -15,6 +15,7 @@ from models.data_models import (
     ValidationStatus,
     VocabularyEntry
 )
+from validators.characters_validator import contains_kanji
 
 
 class FlashcardValidator:
@@ -245,7 +246,7 @@ class FlashcardValidator:
         # Save to vocabulary database if requested
         if save_to_vocabulary:
             self.add_to_vocabulary(
-                kanji=card.front if self._contains_kanji(card.front) else None,
+                kanji=card.front if contains_kanji(card.front) else None,
                 kana=card.back_reading,
                 reading=card.back_reading,
                 translation=card.back_translation,
@@ -488,14 +489,8 @@ class FlashcardValidator:
         
         print(f"✓ Exported {len(rejected)} rejected cards to {output_path}")
         
-        return len(rejected)
-    
-    def _contains_kanji(self, text: str) -> bool:
-        """Check if text contains kanji characters"""
-        for char in text:
-            if '\u4e00' <= char <= '\u9fff':
-                return True
-        return False
+        return len(rejected)   
+
     
     def load_vocabulary_db(self) -> Dict[str, VocabularyEntry]:
         """Load vocabulary database from file"""
